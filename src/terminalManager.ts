@@ -53,6 +53,65 @@ export class TerminalManager {
     }
 
     /**
+     * Build the claude command with all configured flags
+     */
+    private buildClaudeCommand(): string {
+        const config = vscode.workspace.getConfiguration('agentFleet');
+        const parts: string[] = ['claude'];
+
+        // Model selection
+        const model = config.get<string>('claude.model');
+        if (model) {
+            parts.push('--model', model);
+        }
+
+        // System prompt additions
+        const appendSystemPrompt = config.get<string>('claude.appendSystemPrompt');
+        if (appendSystemPrompt) {
+            // Escape single quotes for shell
+            const escaped = appendSystemPrompt.replace(/'/g, "'\\''");
+            parts.push('--append-system-prompt', `'${escaped}'`);
+        }
+
+        const appendSystemPromptFile = config.get<string>('claude.appendSystemPromptFile');
+        if (appendSystemPromptFile) {
+            parts.push('--append-system-prompt-file', `'${appendSystemPromptFile}'`);
+        }
+
+        // Allowed tools
+        const allowedTools = config.get<string[]>('claude.allowedTools') || [];
+        for (const tool of allowedTools) {
+            parts.push('--allowedTools', `'${tool}'`);
+        }
+
+        // Skip permissions (dangerous!)
+        const skipPermissions = config.get<boolean>('claude.skipPermissions');
+        if (skipPermissions) {
+            parts.push('--dangerously-skip-permissions');
+        }
+
+        // Verbose mode
+        const verbose = config.get<boolean>('claude.verbose');
+        if (verbose) {
+            parts.push('--verbose');
+        }
+
+        // Additional directories
+        const additionalDirs = config.get<string[]>('claude.additionalDirs') || [];
+        for (const dir of additionalDirs) {
+            parts.push('--add-dir', `'${dir}'`);
+        }
+
+        // Extra flags (user-defined)
+        const extraFlags = config.get<string>('claude.extraFlags');
+        if (extraFlags) {
+            parts.push(extraFlags);
+        }
+
+        return parts.join(' ');
+    }
+
+    /**
      * Create a terminal for an agent and optionally run claude
      */
     createTerminal(agent: Agent, runClaude: boolean = true): vscode.Terminal {
@@ -75,9 +134,10 @@ export class TerminalManager {
 
         this.terminals.set(agent.id, terminal);
 
-        // Auto-run claude command
+        // Auto-run claude command with configured flags
         if (runClaude) {
-            terminal.sendText('claude');
+            const claudeCommand = this.buildClaudeCommand();
+            terminal.sendText(claudeCommand);
         }
 
         return terminal;

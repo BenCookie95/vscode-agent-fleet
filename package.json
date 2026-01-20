@@ -127,6 +127,52 @@
                     "type": "string",
                     "default": "",
                     "description": "Path to the shell executable to use for agent terminals (e.g., /bin/bash). Leave empty to use the system default."
+                },
+                "agentFleet.claude.model": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Claude model to use (e.g., 'sonnet', 'opus', 'claude-sonnet-4-20250514'). Leave empty for default."
+                },
+                "agentFleet.claude.appendSystemPrompt": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Text to append to Claude's default system prompt. Useful for adding custom instructions."
+                },
+                "agentFleet.claude.appendSystemPromptFile": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to a file containing text to append to Claude's system prompt."
+                },
+                "agentFleet.claude.allowedTools": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "List of tool patterns that can execute without permission prompts (e.g., 'Bash(npm*)', 'Read')."
+                },
+                "agentFleet.claude.skipPermissions": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "**⚠️ Use with caution!** Skip all permission prompts. Only enable if you trust the code being modified."
+                },
+                "agentFleet.claude.verbose": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable verbose debug output from Claude CLI."
+                },
+                "agentFleet.claude.additionalDirs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Additional directories for Claude to access beyond the agent's working directory."
+                },
+                "agentFleet.claude.extraFlags": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Additional command-line flags to pass to Claude CLI (e.g., '--debug --output-format json')."
                 }
             }
         }
