@@ -3,7 +3,7 @@
     "displayName": "Agent Fleet",
     "description": "Manage multiple Claude Code agents in parallel across repos and worktrees",
     "version": "0.1.0",
-    "publisher": "agent-fleet",
+    "publisher": "BenCookie95",
     "license": "MIT",
     "icon": "resources/icon.png",
     "repository": {
