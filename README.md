@@ -2,7 +2,7 @@
 
 Run multiple Claude Code agents in parallel. Monitor status, track changes, and switch between codebases without losing context.
 
-![Description](resources/agent-fleet.png)
+![Description](https://raw.githubusercontent.com/BenCookie95/vscode-agent-fleet/main/resources/agent-fleet.png)
 
 ## What It Does
 
