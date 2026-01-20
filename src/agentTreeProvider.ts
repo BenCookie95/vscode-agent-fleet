@@ -212,10 +212,13 @@ export class AgentTreeProvider implements vscode.TreeDataProvider<AgentTreeItem>
             item.description = file.status;
 
             // Set command to open diff on click
+            // Use gitRoot for proper diff resolution with nested repos
+            // filePath relative to gitRoot = absolutePath minus gitRoot prefix
+            const relativeToGitRoot = path.relative(file.gitRoot, file.absolutePath);
             item.command = {
                 command: 'agentFleet.openFileDiff',
                 title: 'Open Diff',
-                arguments: [agent.directory, file.path, file.status],
+                arguments: [file.gitRoot, relativeToGitRoot, file.status],
             };
 
             return item;
