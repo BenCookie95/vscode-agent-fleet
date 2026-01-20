@@ -1,13 +1,20 @@
 {
     "name": "agent-fleet",
     "displayName": "Agent Fleet",
-    "description": "Manage multiple AI coding agents across repos and worktrees",
+    "description": "Manage multiple Claude Code agents in parallel across repos and worktrees",
     "version": "0.1.0",
     "publisher": "agent-fleet",
+    "license": "MIT",
+    "icon": "resources/icon.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/BenCookie95/vscode-agent-fleet"
+    },
     "engines": {
         "vscode": "^1.85.0"
     },
     "categories": [
+        "Machine Learning",
         "Other"
     ],
     "activationEvents": [
