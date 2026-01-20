@@ -108,7 +108,17 @@
                 "view": "agentFleetView",
                 "contents": "No agents yet.\n[Add Agent](command:agentFleet.addAgent)\n\nAdd your first agent to start managing AI coding sessions across multiple directories."
             }
-        ]
+        ],
+        "configuration": {
+            "title": "Agent Fleet",
+            "properties": {
+                "agentFleet.shellPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to the shell executable to use for agent terminals (e.g., /bin/bash). Leave empty to use the system default."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
