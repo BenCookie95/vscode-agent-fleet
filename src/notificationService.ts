@@ -121,6 +121,9 @@ export class NotificationService {
                     type: 'agent',
                     agentId: agent.id
                 });
+            } else {
+                // Dismiss or close - reset status
+                vscode.commands.executeCommand('agentFleet.resetAgentStatus', agent.id);
             }
         }
     }

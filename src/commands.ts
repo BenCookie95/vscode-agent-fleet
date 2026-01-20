@@ -211,8 +211,15 @@ export function registerCommands(
         vscode.commands.registerCommand('agentFleet.selectAgent', (item: AgentTreeItem) => {
             if (item && item.type === 'agent') {
                 const agent = storage.getAgent(item.agentId);
-                if (agent && terminalManager.hasTerminal(agent.id)) {
-                    terminalManager.showTerminal(agent.id);
+                if (agent) {
+                    if (terminalManager.hasTerminal(agent.id)) {
+                        terminalManager.showTerminal(agent.id);
+                    }
+
+                    // Reset status from "complete" to "idle" to acknowledge the completion
+                    if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                        treeProvider.setAgentStatus(agent.directory, 'idle');
+                    }
                 }
             }
         })
@@ -233,6 +240,11 @@ export function registerCommands(
             const success = workspaceManager.focusWorkspace(agent);
             if (!success) {
                 vscode.window.showErrorMessage(`Failed to focus workspace on "${agent.name}"`);
+            }
+
+            // Reset status from "complete" to "idle" to acknowledge the completion
+            if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                treeProvider.setAgentStatus(agent.directory, 'idle');
             }
         })
     );
@@ -326,6 +338,25 @@ export function registerCommands(
             const success = workspaceManager.focusWorkspace(agent);
             if (!success) {
                 vscode.window.showErrorMessage(`Failed to focus workspace on "${agent.name}"`);
+            }
+        })
+    );
+
+    // Reset Agent Status command (internal for notifications)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('agentFleet.resetAgentStatus', (agentId: string) => {
+            if (!agentId) {
+                return;
+            }
+
+            const agent = storage.getAgent(agentId);
+            if (!agent) {
+                return;
+            }
+
+            // Only reset if currently complete
+            if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                treeProvider.setAgentStatus(agent.directory, 'idle');
             }
         })
     );

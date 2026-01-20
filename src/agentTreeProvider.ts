@@ -185,6 +185,13 @@ export class AgentTreeProvider implements vscode.TreeDataProvider<AgentTreeItem>
             // Set description (shown to the right of the label)
             item.description = agent.directory;
 
+            // Set command to select agent on click
+            item.command = {
+                command: 'agentFleet.selectAgent',
+                title: 'Select Agent',
+                arguments: [item],
+            };
+
             items.push(item);
         }
 
