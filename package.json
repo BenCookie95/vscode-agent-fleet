@@ -2,7 +2,7 @@
     "name": "agent-fleet",
     "displayName": "Agent Fleet",
     "description": "Command a team of Claude Code agents. Orchestrate parallel coding sessions, monitor real-time status, and manage updates across multiple repositories.",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "publisher": "BenCookie95",
     "license": "MIT",
     "icon": "resources/icon.png",
@@ -185,9 +185,11 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "vscode:prepublish": "npm run package",
+        "compile": "node esbuild.mjs",
+        "watch": "node esbuild.mjs --watch",
+        "package": "node esbuild.mjs --production",
+        "compile-tests": "tsc -p ./",
         "lint": "eslint src --ext ts"
     },
     "devDependencies": {
@@ -195,6 +197,7 @@
         "@types/vscode": "^1.85.0",
         "@typescript-eslint/eslint-plugin": "^6.13.0",
         "@typescript-eslint/parser": "^6.13.0",
+        "esbuild": "^0.27.2",
         "eslint": "^8.54.0",
         "typescript": "^5.3.0"
     },

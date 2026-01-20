@@ -4,6 +4,7 @@ src/**
 .gitignore
 .eslintrc.json
 tsconfig.json
+esbuild.mjs
 **/*.map
 **/.eslintcache
 node_modules/**
