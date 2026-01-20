@@ -1,7 +1,7 @@
 {
     "name": "agent-fleet",
     "displayName": "Agent Fleet",
-    "description": "Manage multiple Claude Code agents in parallel across repos and worktrees",
+    "description": "Command a team of Claude Code agents. Orchestrate parallel coding sessions, monitor real-time status, and manage updates across multiple repositories.",
     "version": "0.1.0",
     "publisher": "BenCookie95",
     "license": "MIT",
