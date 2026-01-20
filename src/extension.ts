@@ -48,6 +48,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     const agent = storage.getAgent(item.agentId);
                     if (agent && terminalManager.hasTerminal(agent.id)) {
                         terminalManager.showTerminal(agent.id);
+
+                        // Reset status from "complete" to "idle" to acknowledge the completion
+                        if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                            treeProvider.setAgentStatus(agent.directory, 'idle');
+                        }
                     }
                 }
             }
@@ -109,11 +114,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // Restore terminals for existing agents on startup
     const agents = storage.getAgents();
-    for (const agent of agents) {
-        // We don't auto-create terminals on startup to avoid spawning
-        // multiple claude instances unexpectedly. Users can manually
-        // open terminals using the context menu.
-    }
+
+    // Reclaim any existing VS Code terminals that match our agents
+    // This handles the case where terminals persist across extension reloads
+    terminalManager.reclaimExistingTerminals(agents);
+
+    // Note: We don't auto-create terminals on startup to avoid spawning
+    // multiple claude instances unexpectedly. Users can manually
+    // open terminals using the context menu.
 
     // Register disposables
     context.subscriptions.push(

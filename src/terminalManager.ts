@@ -29,6 +29,30 @@ export class TerminalManager {
     }
 
     /**
+     * Reclaim existing VS Code terminals that match our agent naming pattern.
+     * This is useful after extension reload to reconnect with terminals that
+     * VS Code preserved but we lost track of.
+     */
+    reclaimExistingTerminals(agents: Agent[]): void {
+        const existingTerminals = vscode.window.terminals;
+
+        for (const terminal of existingTerminals) {
+            // Our terminals are named "Agent: <name>"
+            if (terminal.name.startsWith('Agent: ')) {
+                const agentName = terminal.name.substring('Agent: '.length);
+
+                // Find the matching agent
+                const agent = agents.find(a => a.name === agentName);
+                if (agent && !this.terminals.has(agent.id)) {
+                    // Reclaim this terminal
+                    this.terminals.set(agent.id, terminal);
+                    console.log(`Reclaimed existing terminal for agent: ${agent.name}`);
+                }
+            }
+        }
+    }
+
+    /**
      * Create a terminal for an agent and optionally run claude
      */
     createTerminal(agent: Agent, runClaude: boolean = true): vscode.Terminal {

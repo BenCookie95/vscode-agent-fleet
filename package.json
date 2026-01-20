@@ -72,6 +72,11 @@
             {
                 "command": "agentFleet.showAgentQuickPick",
                 "title": "Agent Fleet: Show Agents"
+            },
+            {
+                "command": "agentFleet.focusWorkspaceFromTerminal",
+                "title": "Focus Workspace",
+                "icon": "$(window)"
             }
         ],
         "menus": {
@@ -100,6 +105,12 @@
                 {
                     "command": "agentFleet.removeAgent",
                     "when": "viewItem == agent"
+                }
+            ],
+            "terminal/title/context": [
+                {
+                    "command": "agentFleet.focusWorkspaceFromTerminal",
+                    "group": "navigation"
                 }
             ]
         },

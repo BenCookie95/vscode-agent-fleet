@@ -127,9 +127,14 @@ export function registerCommands(
 
             // Create terminal if it doesn't exist, otherwise show it
             if (!terminalManager.hasTerminal(agent.id)) {
-                terminalManager.createTerminal(agent, false);
+                terminalManager.createTerminal(agent, true);
             }
             terminalManager.showTerminal(agent.id);
+
+            // Reset status from "complete" to "idle" to acknowledge the completion
+            if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                treeProvider.setAgentStatus(agent.directory, 'idle');
+            }
         })
     );
 
@@ -290,10 +295,52 @@ export function registerCommands(
                     workspaceManager.focusWorkspace(selected.agent);
                 } else if (action === 'Open Terminal') {
                     if (!terminalManager.hasTerminal(selected.agent.id)) {
-                        terminalManager.createTerminal(selected.agent, false);
+                        terminalManager.createTerminal(selected.agent, true);
                     }
                     terminalManager.showTerminal(selected.agent.id);
+
+                    // Reset status from "complete" to "idle" to acknowledge the completion
+                    if (treeProvider.getAgentStatus(selected.agent.directory) === 'complete') {
+                        treeProvider.setAgentStatus(selected.agent.directory, 'idle');
+                    }
                 }
+            }
+        })
+    );
+
+    // Focus Workspace from Terminal context menu
+    context.subscriptions.push(
+        vscode.commands.registerCommand('agentFleet.focusWorkspaceFromTerminal', (terminal: vscode.Terminal) => {
+            if (!terminal) {
+                // If no terminal passed, try the active terminal
+                terminal = vscode.window.activeTerminal!;
+                if (!terminal) {
+                    return;
+                }
+            }
+
+            // Our terminals are named "Agent: <name>"
+            if (!terminal.name.startsWith('Agent: ')) {
+                vscode.window.showWarningMessage('This terminal is not an Agent Fleet terminal');
+                return;
+            }
+
+            const agentName = terminal.name.substring('Agent: '.length);
+
+            // Find the agent by name
+            const agents = storage.getAgents();
+            const agent = agents.find(a => a.name === agentName);
+
+            if (!agent) {
+                vscode.window.showErrorMessage(`Agent "${agentName}" not found`);
+                return;
+            }
+
+            const success = workspaceManager.focusWorkspace(agent);
+            if (success) {
+                vscode.window.showInformationMessage(`Focused workspace on "${agent.name}"`);
+            } else {
+                vscode.window.showErrorMessage(`Failed to focus workspace on "${agent.name}"`);
             }
         })
     );
