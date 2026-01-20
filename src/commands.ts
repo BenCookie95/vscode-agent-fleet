@@ -61,8 +61,6 @@ export function registerCommands(
 
             // Refresh tree
             treeProvider.refresh();
-
-            vscode.window.showInformationMessage(`Agent "${name}" added successfully.`);
         })
     );
 
@@ -100,8 +98,6 @@ export function registerCommands(
 
             // Refresh tree
             treeProvider.refresh();
-
-            vscode.window.showInformationMessage(`Agent "${agent.name}" removed.`);
         })
     );
 
@@ -147,8 +143,7 @@ export function registerCommands(
                 const uri = vscode.Uri.file(absolutePath);
 
                 if (status === 'D') {
-                    // Deleted file - show git version
-                    vscode.window.showInformationMessage(`File "${filePath}" has been deleted.`);
+                    // Deleted file - can't open it
                     return;
                 }
 
@@ -236,9 +231,7 @@ export function registerCommands(
             }
 
             const success = workspaceManager.focusWorkspace(agent);
-            if (success) {
-                vscode.window.showInformationMessage(`Focused workspace on "${agent.name}"`);
-            } else {
+            if (!success) {
                 vscode.window.showErrorMessage(`Failed to focus workspace on "${agent.name}"`);
             }
         })
@@ -249,15 +242,10 @@ export function registerCommands(
         vscode.commands.registerCommand('agentFleet.unfocusWorkspace', () => {
             const focusedId = workspaceManager.getFocusedAgentId();
             if (!focusedId) {
-                vscode.window.showInformationMessage('No workspace is currently focused');
                 return;
             }
 
-            const agent = storage.getAgent(focusedId);
-            const success = workspaceManager.unfocusWorkspace();
-            if (success && agent) {
-                vscode.window.showInformationMessage(`Unfocused workspace from "${agent.name}"`);
-            }
+            workspaceManager.unfocusWorkspace();
         })
     );
 
@@ -266,7 +254,6 @@ export function registerCommands(
         vscode.commands.registerCommand('agentFleet.showAgentQuickPick', async () => {
             const agents = treeProvider.getAgentsWithStatus();
             if (agents.length === 0) {
-                vscode.window.showInformationMessage('No agents configured');
                 return;
             }
 
@@ -337,9 +324,7 @@ export function registerCommands(
             }
 
             const success = workspaceManager.focusWorkspace(agent);
-            if (success) {
-                vscode.window.showInformationMessage(`Focused workspace on "${agent.name}"`);
-            } else {
+            if (!success) {
                 vscode.window.showErrorMessage(`Failed to focus workspace on "${agent.name}"`);
             }
         })
