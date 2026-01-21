@@ -360,6 +360,23 @@ export function registerCommands(
             }
         })
     );
+
+    // Set Status to Idle command (manual override for stuck agents)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('agentFleet.setStatusIdle', (item: AgentTreeItem) => {
+            if (!item || item.type !== 'agent') {
+                return;
+            }
+
+            const agent = storage.getAgent(item.agentId);
+            if (!agent) {
+                return;
+            }
+
+            // Force status to idle regardless of current state
+            treeProvider.setAgentStatus(agent.directory, 'idle');
+        })
+    );
 }
 
 /**

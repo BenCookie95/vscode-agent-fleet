@@ -203,24 +203,52 @@ export class AgentTreeProvider implements vscode.TreeDataProvider<AgentTreeItem>
      */
     private async getChangedFileItems(agentId: string, agent: AgentState): Promise<AgentTreeItem[]> {
         const changedFiles = await this.getChangedFilesForAgent(agent);
-        return changedFiles.map(file => {
+
+        // Sort files: Modified first, then Added, then Untracked, then others
+        const statusOrder: Record<string, number> = { 'M': 1, 'A': 2, 'D': 3, 'R': 4, 'U': 5, '?': 6 };
+        const sortedFiles = [...changedFiles].sort((a, b) => {
+            const orderA = statusOrder[a.status] || 99;
+            const orderB = statusOrder[b.status] || 99;
+            if (orderA !== orderB) return orderA - orderB;
+            return a.path.localeCompare(b.path);
+        });
+
+        return sortedFiles.map(file => {
+            // Show basename as label for cleaner display
+            const basename = path.basename(file.path);
+            const dirname = path.dirname(file.path);
+
             const item = new AgentTreeItem(
                 'file',
                 agentId,
-                file.path,
+                basename,
                 vscode.TreeItemCollapsibleState.None,
                 agent,
                 file
             );
 
-            // Set icon based on git status
+            // Set icon based on git status with VS Code git decoration colors
             item.iconPath = this.getFileStatusIcon(file.status);
-            item.tooltip = `${this.getFileStatusLabel(file.status)}: ${file.path}`;
-            item.description = file.status;
+
+            // Show directory path as description, or status label if at root
+            if (dirname === '.') {
+                item.description = this.getFileStatusLabel(file.status);
+            } else {
+                item.description = `${dirname} • ${this.getFileStatusLabel(file.status)}`;
+            }
+
+            // Rich tooltip with full details
+            item.tooltip = new vscode.MarkdownString(
+                `**${basename}**\n\n` +
+                `Status: ${this.getFileStatusLabel(file.status)}\n\n` +
+                `Path: \`${file.path}\``
+            );
+
+            // Set resource URI for proper file decorations
+            item.resourceUri = vscode.Uri.file(file.absolutePath);
 
             // Set command to open diff on click
             // Use gitRoot for proper diff resolution with nested repos
-            // filePath relative to gitRoot = absolutePath minus gitRoot prefix
             const relativeToGitRoot = path.relative(file.gitRoot, file.absolutePath);
             item.command = {
                 command: 'agentFleet.openFileDiff',
@@ -290,22 +318,22 @@ export class AgentTreeProvider implements vscode.TreeDataProvider<AgentTreeItem>
     }
 
     /**
-     * Get icon for file status
+     * Get icon for file status using VS Code's git decoration colors
      */
     private getFileStatusIcon(status: string): vscode.ThemeIcon {
         switch (status) {
             case 'M':
-                return new vscode.ThemeIcon('edit', new vscode.ThemeColor('charts.yellow'));
+                return new vscode.ThemeIcon('diff-modified', new vscode.ThemeColor('gitDecoration.modifiedResourceForeground'));
             case 'A':
-                return new vscode.ThemeIcon('add', new vscode.ThemeColor('charts.green'));
+                return new vscode.ThemeIcon('diff-added', new vscode.ThemeColor('gitDecoration.addedResourceForeground'));
             case 'D':
-                return new vscode.ThemeIcon('trash', new vscode.ThemeColor('charts.red'));
+                return new vscode.ThemeIcon('diff-removed', new vscode.ThemeColor('gitDecoration.deletedResourceForeground'));
             case '?':
-                return new vscode.ThemeIcon('question', new vscode.ThemeColor('charts.purple'));
+                return new vscode.ThemeIcon('file-add', new vscode.ThemeColor('gitDecoration.untrackedResourceForeground'));
             case 'R':
-                return new vscode.ThemeIcon('arrow-right', new vscode.ThemeColor('charts.blue'));
+                return new vscode.ThemeIcon('diff-renamed', new vscode.ThemeColor('gitDecoration.renamedResourceForeground'));
             case 'U':
-                return new vscode.ThemeIcon('git-merge', new vscode.ThemeColor('charts.orange'));
+                return new vscode.ThemeIcon('warning', new vscode.ThemeColor('gitDecoration.conflictingResourceForeground'));
             default:
                 return new vscode.ThemeIcon('file');
         }
