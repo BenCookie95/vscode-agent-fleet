@@ -17,6 +17,33 @@ export class WorkspaceManager {
         if (focusedPath) {
             this.focusedFolderUri = vscode.Uri.file(focusedPath);
         }
+
+        // Validate that the focused folder still exists in the workspace
+        // (It may not if VS Code was restarted without a .code-workspace file)
+        this.validateFocusedState();
+    }
+
+    /**
+     * Validate that the focused folder actually exists in the current workspace.
+     * Clears the focused state if the folder is not present.
+     */
+    private validateFocusedState(): void {
+        if (!this.focusedFolderUri) {
+            return;
+        }
+
+        const existingFolders = vscode.workspace.workspaceFolders || [];
+        const folderExists = existingFolders.some(
+            folder => folder.uri.fsPath === this.focusedFolderUri!.fsPath
+        );
+
+        if (!folderExists) {
+            // Clear the stale focused state
+            this.focusedAgentId = null;
+            this.focusedFolderUri = null;
+            this.context.globalState.update('focusedAgentId', undefined);
+            this.context.globalState.update('focusedFolderPath', undefined);
+        }
     }
 
     /**
@@ -25,6 +52,10 @@ export class WorkspaceManager {
      */
     focusWorkspace(agent: StoredAgent): boolean {
         const agentUri = vscode.Uri.file(agent.directory);
+
+        // Validate focused state before checking - handles cases where
+        // VS Code restarted and workspace folders weren't preserved
+        this.validateFocusedState();
 
         // Check if this agent is already focused
         if (this.focusedAgentId === agent.id) {
