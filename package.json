@@ -35,7 +35,7 @@
             "agent-fleet": [
                 {
                     "id": "agentFleetView",
-                    "name": "Agents",
+                    "name": "",
                     "icon": "resources/agent-fleet-icon.svg"
                 }
             ]
@@ -43,12 +43,12 @@
         "commands": [
             {
                 "command": "agentFleet.addAgent",
-                "title": "Add Agent",
+                "title": "Add Project",
                 "icon": "$(add)"
             },
             {
                 "command": "agentFleet.removeAgent",
-                "title": "Remove Agent"
+                "title": "Remove Project"
             },
             {
                 "command": "agentFleet.refreshAgents",
@@ -132,7 +132,7 @@
         "viewsWelcome": [
             {
                 "view": "agentFleetView",
-                "contents": "No agents yet.\n[Add Agent](command:agentFleet.addAgent)\n\nAdd your first agent to start managing AI coding sessions across multiple directories."
+                "contents": "No projects yet.\n[Add Project](command:agentFleet.addAgent)\n\nSelect a code directory to start a Claude agent. Each project gets its own terminal session."
             }
         ],
         "configuration": {

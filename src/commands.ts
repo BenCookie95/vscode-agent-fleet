@@ -18,7 +18,7 @@ export function registerCommands(
     treeProvider: AgentTreeProvider,
     workspaceManager: WorkspaceManager
 ): void {
-    // Add Agent command
+    // Add Project command
     context.subscriptions.push(
         vscode.commands.registerCommand('agentFleet.addAgent', async () => {
             // Prompt user to select a directory
@@ -26,8 +26,8 @@ export function registerCommands(
                 canSelectFiles: false,
                 canSelectFolders: true,
                 canSelectMany: false,
-                openLabel: 'Select Agent Directory',
-                title: 'Select Directory for New Agent',
+                openLabel: 'Select Project Directory',
+                title: 'Select Directory for New Project',
             });
 
             if (!uris || uris.length === 0) {

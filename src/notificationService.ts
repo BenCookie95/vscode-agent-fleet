@@ -18,7 +18,7 @@ export class NotificationService {
             100
         );
         this.statusBarItem.command = 'agentFleet.showAgentQuickPick';
-        this.statusBarItem.tooltip = 'Click to view agents';
+        this.statusBarItem.tooltip = 'Click to view projects';
         this.statusBarItem.show();
 
         this.disposables.push(this.statusBarItem);

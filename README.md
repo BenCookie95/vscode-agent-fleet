@@ -32,14 +32,14 @@ Agent Fleet is designed for developers who:
 
 1. Install the extension
 2. Click the Agent Fleet icon in the activity bar
-3. Click "Add Agent" and select a directory
+3. Click "Add Project" and select a directory
 4. The extension will prompt you to install hooks on first use (required for status tracking)
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| Add Agent | Register a new directory as an agent |
+| Add Project | Select a code directory to start a Claude agent |
 | Remove Agent | Remove an agent from the fleet |
 | Open Terminal | Open or focus the agent's Claude Code terminal |
 | Focus Workspace | Add the agent's directory to your VS Code workspace |
