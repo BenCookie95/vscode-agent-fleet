@@ -27,6 +27,7 @@ Agent Fleet is designed for developers who:
 
 - **Claude Code CLI**: Must be installed and available in your PATH (`claude` command)
 - VS Code 1.85.0 or higher
+- **macOS or Linux**: Windows is not currently supported (hooks require bash)
 
 ## Getting Started
 
