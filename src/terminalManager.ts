@@ -8,9 +8,13 @@ export class TerminalManager {
     private terminals: Map<string, vscode.Terminal> = new Map();
     private disposables: vscode.Disposable[] = [];
     private onTerminalClosedEmitter = new vscode.EventEmitter<string>();
+    private onTerminalFocusedEmitter = new vscode.EventEmitter<string>();
 
     /** Fired when a terminal is closed (agentId) */
     readonly onTerminalClosed = this.onTerminalClosedEmitter.event;
+
+    /** Fired when an agent terminal is focused (agentId) */
+    readonly onTerminalFocused = this.onTerminalFocusedEmitter.event;
 
     constructor() {
         // Listen for terminal close events
@@ -22,6 +26,21 @@ export class TerminalManager {
                         this.terminals.delete(agentId);
                         this.onTerminalClosedEmitter.fire(agentId);
                         break;
+                    }
+                }
+            })
+        );
+
+        // Listen for terminal focus events
+        this.disposables.push(
+            vscode.window.onDidChangeActiveTerminal(terminal => {
+                if (terminal) {
+                    // Find which agent this terminal belongs to
+                    for (const [agentId, agentTerminal] of this.terminals) {
+                        if (agentTerminal === terminal) {
+                            this.onTerminalFocusedEmitter.fire(agentId);
+                            break;
+                        }
                     }
                 }
             })

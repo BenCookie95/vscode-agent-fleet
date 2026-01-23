@@ -97,6 +97,29 @@ export function activate(context: vscode.ExtensionContext): void {
         })
     );
 
+    // Handle terminal focus events - reset 'complete' status to 'idle' and dismiss notifications
+    context.subscriptions.push(
+        terminalManager.onTerminalFocused(agentId => {
+            const agent = storage.getAgent(agentId);
+            if (agent) {
+                // Always dismiss any pending notification for this agent when terminal is focused
+                notificationService.dismissNotification(agentId);
+
+                const currentStatus = treeProvider.getAgentStatus(agent.directory);
+                if (currentStatus === 'complete') {
+                    // Keep the success status visible for 2 seconds before resetting to idle
+                    // This gives the user time to see the completion state
+                    setTimeout(() => {
+                        // Only reset if still complete (user hasn't triggered another status change)
+                        if (treeProvider.getAgentStatus(agent.directory) === 'complete') {
+                            treeProvider.setAgentStatus(agent.directory, 'idle');
+                        }
+                    }, 2000);
+                }
+            }
+        })
+    );
+
     // Check if hooks are installed and prompt if not
     if (HookInstaller.isClaudeInstalled() && !HookInstaller.areHooksInstalled()) {
         vscode.window

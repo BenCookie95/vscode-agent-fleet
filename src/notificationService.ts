@@ -8,6 +8,8 @@ import { AgentState, AgentStatus, StoredAgent } from './types';
 export class NotificationService {
     private statusBarItem: vscode.StatusBarItem;
     private disposables: vscode.Disposable[] = [];
+    /** Track pending notifications by agent ID - when dismissed, we ignore the action */
+    private pendingNotifications: Map<string, { dismissed: boolean }> = new Map();
 
     constructor() {
         // Create status bar item on the left side
@@ -90,12 +92,24 @@ export class NotificationService {
             return;
         }
 
+        // Track this notification
+        const notificationState = { dismissed: false };
+        this.pendingNotifications.set(agent.id, notificationState);
+
         if (newStatus === 'stuck') {
             const action = await vscode.window.showWarningMessage(
                 `Agent "${agent.name}" is waiting for input`,
                 'Open Terminal',
                 'Dismiss'
             );
+
+            // Remove from pending
+            this.pendingNotifications.delete(agent.id);
+
+            // If dismissed by terminal focus, ignore the action
+            if (notificationState.dismissed) {
+                return;
+            }
 
             if (action === 'Open Terminal') {
                 vscode.commands.executeCommand('agentFleet.openTerminal', {
@@ -111,6 +125,14 @@ export class NotificationService {
                 'Dismiss'
             );
 
+            // Remove from pending
+            this.pendingNotifications.delete(agent.id);
+
+            // If dismissed by terminal focus, ignore the action
+            if (notificationState.dismissed) {
+                return;
+            }
+
             if (action === 'Focus Workspace') {
                 vscode.commands.executeCommand('agentFleet.focusWorkspace', {
                     type: 'agent',
@@ -125,6 +147,17 @@ export class NotificationService {
                 // Dismiss or close - reset status
                 vscode.commands.executeCommand('agentFleet.resetAgentStatus', agent.id);
             }
+        }
+    }
+
+    /**
+     * Dismiss any pending notification for an agent.
+     * This marks the notification as dismissed so we ignore any action when the promise resolves.
+     */
+    dismissNotification(agentId: string): void {
+        const pending = this.pendingNotifications.get(agentId);
+        if (pending) {
+            pending.dismissed = true;
         }
     }
 
